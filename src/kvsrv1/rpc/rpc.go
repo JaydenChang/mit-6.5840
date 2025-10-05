@@ -14,6 +14,11 @@ const (
 	// For future kvraft lab
 	ErrWrongLeader = "ErrWrongLeader"
 	ErrWrongGroup  = "ErrWrongGroup"
+
+	// For lock test
+	ErrAcquired = "ErrAcquired"
+	ErrReleased = "ErrReleased"
+	ErrOccured  = "ErrOccured"
 )
 
 type Tversion uint64
@@ -38,3 +43,20 @@ type GetReply struct {
 	Err     Err
 }
 
+type AcquireLockArgs struct {
+	LockKey  string
+	ClientId string
+}
+
+type AcquireLockReply struct {
+	Err Err
+}
+
+type ReleaseLockArgs struct {
+	LockKey  string
+	ClientId string
+}
+
+type ReleaseLockReply struct {
+	Err Err
+}
