@@ -10,6 +10,7 @@ package raft
 
 import (
 	"fmt"
+	"log"
 	// "log"
 	"math/rand"
 	"sync"
@@ -17,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"6.5840/tester1"
+	tester "6.5840/tester1"
 )
 
 // The tester generously allows solutions to complete elections in one second
@@ -66,6 +67,8 @@ func TestReElection3A(t *testing.T) {
 
 	// if the leader disconnects, a new one should be elected.
 	ts.g.DisconnectAll(leader1)
+	log.Printf("disconnect leader: %v", leader1)
+	tester.Annotate(fmt.Sprintf("server %v", leader1), "leader disconnected", "")
 	tester.AnnotateConnection(ts.g.GetConnected())
 	ts.checkOneLeader()
 
@@ -73,13 +76,17 @@ func TestReElection3A(t *testing.T) {
 	// disturb the new leader. and the old leader
 	// should switch to follower.
 	ts.g.ConnectOne(leader1)
+	log.Printf("connect leader %v", leader1)
+	tester.Annotate(fmt.Sprintf("server %v", leader1), "leader reconnected", "")
 	tester.AnnotateConnection(ts.g.GetConnected())
 	leader2 := ts.checkOneLeader()
 
 	// if there's no quorum, no new leader should
 	// be elected.
 	ts.g.DisconnectAll(leader2)
+	tester.Annotate(fmt.Sprintf("server %v", leader2%servers), "server disconnect", "")
 	ts.g.DisconnectAll((leader2 + 1) % servers)
+	tester.Annotate(fmt.Sprintf("server %v", (leader2+1)%servers), "server disconnect", "")
 	tester.AnnotateConnection(ts.g.GetConnected())
 	time.Sleep(2 * RaftElectionTimeout)
 
@@ -211,7 +218,9 @@ func TestFollowerFailure3B(t *testing.T) {
 	// disconnect the remaining follower
 	leader2 := ts.checkOneLeader()
 	ts.g.DisconnectAll((leader2 + 1) % servers)
+	tester.Annotate(fmt.Sprintf("server %v", (leader2+1)%servers), "server disconnect", "")
 	ts.g.DisconnectAll((leader2 + 2) % servers)
+	tester.Annotate(fmt.Sprintf("server %v", (leader2+2)%servers), "server disconnect", "")
 	tester.AnnotateConnection(ts.g.GetConnected())
 
 	// submit a command.
